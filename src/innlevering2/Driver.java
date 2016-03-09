@@ -7,7 +7,7 @@ public class Driver {
 	public static void main(String[] args) {
 		try{
 			// 1. Get a connection to database
-			Connection myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/anderoha_database", "anderoha", " ");
+			Connection myConn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/anderoha_database?autoReconnect=true&useSSL=false", "anderoha", " ");
 			
 			// 2. Get a statement
 			Statement myStmt = myConn.createStatement();
