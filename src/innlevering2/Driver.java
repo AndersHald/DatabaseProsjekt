@@ -9,6 +9,7 @@ import java.text.*;
 
 public class Driver {
 
+<<<<<<< HEAD
 	public static void addBruker(String navn, String telefonnr, int vekt, int fødselsår) throws SQLException {
 		String addBruker = "INSERT INTO BRUKER (brukerID, navn, telefonnr, vekt, fødselsår) VALUES (default, ?, ?, ?, ?)";
 
@@ -166,6 +167,22 @@ public class Driver {
 				}
 			} else {
 				throw new Exception("Ikke gyldig valg [1 eller 2]. Begynn på nytt!");
+=======
+	public static void main(String[] args) {
+		try{
+			// 1. Get a connection to database
+			Connection myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/anderoha_database", "anderoha", " ");
+			
+			// 2. Get a statement
+			Statement myStmt = myConn.createStatement();
+			
+			// 3. Execute SQL query
+			ResultSet myRs = myStmt.executeQuery("SELECT * FROM bruker");
+			
+			// 4. Process the result set
+			while(myRs.next()){
+				System.out.println(myRs.getString("navn"));
+>>>>>>> 61636425373538e1b483f0b6c502cc68e899befc
 			}
 		}
 		ResultSet Login = myStatement.executeQuery("SELECT brukerID FROM BRUKER WHERE navn ='" + navnValg + "'");
