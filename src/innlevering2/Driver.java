@@ -24,18 +24,18 @@ public class Driver {
 		Statement.executeUpdate();
 	}
 
-	public static void addØkt(int brukerID, Date dato, int varighet, int form, int prestasjon, String notat, String lokasjon) throws SQLException {
-		String addØkt = "INSERT INTO ØKT (øktID, brukerID, dato, varighet, form, prestasjon, notat, lokasjon) VALUES (default,?,?,?,?,?,?,?,?)";
+	public static void addØkt(int brukerID, Date dato, int varighet, int form, int prestasjon, String øvelser, String lokasjon) throws SQLException {
+		String addØkt = "INSERT INTO ØKT (øktID, brukerID, dato, varighet, form, prestasjon, øvelser, lokasjon) VALUES (default,?,?,?,?,?,?,?)";
 
 		Connection myConnection = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/anderoha_database", "anderoha", "");
 		PreparedStatement Statement = myConnection.prepareStatement(addØkt);
 
 		Statement.setInt(1, brukerID);
-		Statement.setDate(2, dato);
+		Statement.setDate(2, sqlDate);
 		Statement.setInt(3, varighet);
 		Statement.setInt(4, form);
 		Statement.setInt(5, prestasjon);
-		Statement.setString(6, notat);
+		Statement.setString(6, øvelser);
 		Statement.setString(7, lokasjon);
 		Statement.executeUpdate();
 	}
@@ -132,6 +132,20 @@ public class Driver {
 		switch (Valg) {
 
 		case 1: 
+			Scanner.nextLine();
+			System.out.println("Varighet på treningsøkt: ");
+			int varighet = Scanner.nextInt();
+			System.out.println("Form under treningsøkt [1-10]: ");
+			int form = Scanner.nextInt();
+			System.out.println("Prestasjon under treningsøkt [1-10]: ");
+			int prestasjon = Scanner.nextInt();
+			Scanner.nextLine();
+			System.out.println("Øvelser på treningsøkten (separer med , ): ");
+			String øvelser = Scanner.nextLine();
+			System.out.println("Treningslokasjon: ");
+			String lokasjon = Scanner.nextLine();
+			addØkt(brukerID, sqlDate, varighet, form, prestasjon, øvelser, lokasjon);
+			break;
 
 		case 2: // Legg til resultater
 			Scanner.nextLine();	
@@ -150,8 +164,8 @@ public class Driver {
 			System.out.println("Velg en øvelse: ");
 			String ØvelsesNavn = Scanner.nextLine();
 
-			PreparedStatement PrepStatement = myConnection.prepareStatement("SELECT øvelsesNavn, vekt, repetisjoner, dato FROM RESULTAT WHERE øvelsesNavn = ?"
-					+ "AND brukerID = ? ORDER BY vekt DESC");
+			PreparedStatement PrepStatement = myConnection.prepareStatement("SELECT dato, øvelsesNavn, vekt, repetisjoner FROM RESULTAT WHERE øvelsesNavn = ?"
+					+ "AND brukerID = ? ORDER BY dato DESC");
 			PrepStatement.setString(1, ØvelsesNavn);
 			PrepStatement.setInt(2, brukerID);
 			ResultSet resultatSet = PrepStatement.executeQuery();
