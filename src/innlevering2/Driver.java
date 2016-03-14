@@ -7,6 +7,9 @@ import java.util.*;
 import java.text.*;
 
 public class Driver {
+	
+	static java.util.Date utilDate = new java.util.Date();
+	static java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 
 	public static void addBruker(String navn, String telefonnr, int vekt, int fødselsår) throws SQLException {
 		String addBruker = "INSERT INTO BRUKER (brukerID, navn, telefonnr, vekt, fødselsår) VALUES (default, ?, ?, ?, ?)";
@@ -19,13 +22,6 @@ public class Driver {
 		Statement.setInt(3, vekt);
 		Statement.setInt(4, fødselsår);
 		Statement.executeUpdate();
-	}
-
-	public static void currentDate() {
-		java.util.Date utilDate = new java.util.Date();
-		java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-		System.out.println("utilDate:" + utilDate);
-		System.out.println("sqlDate:" + sqlDate);
 	}
 
 	public static void addØkt(int brukerID, Date dato, int varighet, int form, int prestasjon, String notat, String lokasjon) throws SQLException {
@@ -68,7 +64,7 @@ public class Driver {
 	}
 
 	public static void addResultat(int brukerID, String øvelsesNavn, int vekt, int repetisjoner, Date dato) throws SQLException {
-		String addResultat = "INSERT INTO RESULTAT (resultatID, brukerID, øvelsesNavn, vekt, repetisjoner) VALUES (default, ?, ?, ?, ?, ?)";
+		String addResultat = "INSERT INTO RESULTAT (resultatID, brukerID, øvelsesNavn, vekt, repetisjoner, dato) VALUES (default, ?, ?, ?, ?, ?)";
 
 		Connection myConnection = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/anderoha_database", "anderoha", "");
 		PreparedStatement Statement = myConnection.prepareStatement(addResultat);
@@ -77,7 +73,7 @@ public class Driver {
 		Statement.setString(2, øvelsesNavn);
 		Statement.setInt(3, vekt);
 		Statement.setInt(4, repetisjoner);
-		//		Statement.setDate(5, );
+		Statement.setDate(5, sqlDate);
 		Statement.executeUpdate();
 	}
 
@@ -145,7 +141,7 @@ public class Driver {
 			int vekt = Scanner.nextInt();
 			System.out.println("Antall repetisjoner på øvelse: ");
 			int repetisjoner = Scanner.nextInt();
-			//			addResultat(brukerID, øvelsesNavn, vekt, repetisjoner, );
+			addResultat(brukerID, øvelsesNavn, vekt, repetisjoner, sqlDate);
 			Scanner.nextLine();
 			break;
 
@@ -154,7 +150,7 @@ public class Driver {
 			System.out.println("Velg en øvelse: ");
 			String ØvelsesNavn = Scanner.nextLine();
 
-			PreparedStatement PrepStatement = myConnection.prepareStatement("SELECT øvelsesNavn, vekt, repetisjoner FROM RESULTAT WHERE øvelsesNavn = ?"
+			PreparedStatement PrepStatement = myConnection.prepareStatement("SELECT øvelsesNavn, vekt, repetisjoner, dato FROM RESULTAT WHERE øvelsesNavn = ?"
 					+ "AND brukerID = ? ORDER BY vekt DESC");
 			PrepStatement.setString(1, ØvelsesNavn);
 			PrepStatement.setInt(2, brukerID);
