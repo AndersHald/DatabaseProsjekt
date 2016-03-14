@@ -7,7 +7,7 @@ import java.util.*;
 import java.text.*;
 
 public class Driver {
-	
+
 	static java.util.Date utilDate = new java.util.Date();
 	static java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 
@@ -40,15 +40,17 @@ public class Driver {
 		Statement.executeUpdate();
 	}
 
-	public static void addMål(int brukerID, String øvelsesNavn, Date dato) throws SQLException {
-		String addMål = "INSERT INTO MÅL (målID, brukerID, øvelsesNavn, dato) VALUES (default, ?, ?, ?)";
+	public static void addMål(int brukerID, String navnPåØvelse, Date dato, int antallRepetisjoner, int målVekt) throws SQLException {
+		String addMål = "INSERT INTO MÅL (målID, brukerID, øvelsesNavn, dato, antallRepetisjoner, vekt) VALUES (default, ?, ?, ?, ?, ?)";
 
 		Connection myConnection = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/anderoha_database", "anderoha", "");
 		PreparedStatement Statement = myConnection.prepareStatement(addMål);
 
 		Statement.setInt(1, brukerID);
-		Statement.setString(2, øvelsesNavn);
-		Statement.setDate(3, dato);
+		Statement.setString(2, navnPåØvelse);
+		Statement.setDate(3, sqlDate);
+		Statement.setInt(4, antallRepetisjoner);
+		Statement.setInt(5, målVekt);
 		Statement.executeUpdate();
 	}
 
@@ -125,69 +127,108 @@ public class Driver {
 			brukerID = Integer.parseInt(str);
 		}
 
-		System.out.println("[1] Legg til økt \n[2] Legg til resultat \n[3] Vis beste resultater \n" +
-				"[4] Lag mal \n[5] Velg mal");
-		Valg = Scanner.nextInt();
+		while (!(Valg == 6)) {
 
-		switch (Valg) {
+			System.out.println("[1] Legg til økt \n[2] Legg til resultat \n[3] Vis beste resultater \n" +
+					"[4] Legg til mål \n[5] Slett bruker \n[6] Avslutt program");
+			Valg = Scanner.nextInt();
 
-		case 1: 
-			Scanner.nextLine();
-			System.out.println("Varighet på treningsøkt: ");
-			int varighet = Scanner.nextInt();
-			System.out.println("Form under treningsøkt [1-10]: ");
-			int form = Scanner.nextInt();
-			System.out.println("Prestasjon under treningsøkt [1-10]: ");
-			int prestasjon = Scanner.nextInt();
-			Scanner.nextLine();
-			System.out.println("Øvelser på treningsøkten (separer med , ): ");
-			String øvelser = Scanner.nextLine();
-			System.out.println("Treningslokasjon: ");
-			String lokasjon = Scanner.nextLine();
-			addØkt(brukerID, sqlDate, varighet, form, prestasjon, øvelser, lokasjon);
-			break;
 
-		case 2: // Legg til resultater
-			Scanner.nextLine();	
-			System.out.println("Navn på øvelse: ");
-			String øvelsesNavn = Scanner.nextLine();
-			System.out.println("Vekt brukt på øvelse: ");
-			int vekt = Scanner.nextInt();
-			System.out.println("Antall repetisjoner på øvelse: ");
-			int repetisjoner = Scanner.nextInt();
-			addResultat(brukerID, øvelsesNavn, vekt, repetisjoner, sqlDate);
-			Scanner.nextLine();
-			break;
+			switch (Valg) {
 
-		case 3: // Vis beste resultater på en øvelse (styrke)
-			Scanner.nextLine();
-			System.out.println("Velg en øvelse: ");
-			String ØvelsesNavn = Scanner.nextLine();
+			case 1: // Legge til økt
+				Scanner.nextLine();
+				System.out.println("Varighet på treningsøkt: ");
+				int varighet = Scanner.nextInt();
+				System.out.println("Form under treningsøkt [1-10]: ");
+				int form = Scanner.nextInt();
+				System.out.println("Prestasjon under treningsøkt [1-10]: ");
+				int prestasjon = Scanner.nextInt();
+				Scanner.nextLine();
+				System.out.println("Øvelser på treningsøkten (separer med , ): ");
+				String øvelser = Scanner.nextLine();
+				System.out.println("Treningslokasjon: ");
+				String lokasjon = Scanner.nextLine();
+				addØkt(brukerID, sqlDate, varighet, form, prestasjon, øvelser, lokasjon);
+				break;
 
-			PreparedStatement PrepStatement = myConnection.prepareStatement("SELECT dato, øvelsesNavn, vekt, repetisjoner FROM RESULTAT WHERE øvelsesNavn = ?"
-					+ "AND brukerID = ? ORDER BY dato DESC");
-			PrepStatement.setString(1, ØvelsesNavn);
-			PrepStatement.setInt(2, brukerID);
-			ResultSet resultatSet = PrepStatement.executeQuery();
+			case 2: // Legg til resultater
+				Scanner.nextLine();	
+				System.out.println("Navn på øvelse: ");
+				String øvelsesNavn = Scanner.nextLine();
+				System.out.println("Vekt brukt på øvelse: ");
+				int vekt = Scanner.nextInt();
+				System.out.println("Antall repetisjoner på øvelse: ");
+				int repetisjoner = Scanner.nextInt();
+				addResultat(brukerID, øvelsesNavn, vekt, repetisjoner, sqlDate);
+				Scanner.nextLine();
+				break;
 
-			ResultSetMetaData Resultatmetadata = PrepStatement.getMetaData();
-			int numberOfColumns = Resultatmetadata.getColumnCount();
+			case 3: // Vis beste resultater på en øvelse (styrke)
+				Scanner.nextLine();
+				System.out.println("Velg en øvelse: ");
+				String ØvelsesNavn = Scanner.nextLine();
 
-			ArrayList<String[]> resultater = new ArrayList<>();
-			while( resultatSet.next()) {
-				String[] row = new String[numberOfColumns];
-				for( int iCol = 1; iCol <= numberOfColumns; iCol++ ){
-					row[iCol-1] = resultatSet.getObject( iCol ).toString();
+				PreparedStatement PrepStatement = myConnection.prepareStatement("SELECT dato, øvelsesNavn, vekt, repetisjoner FROM RESULTAT WHERE øvelsesNavn = ?"
+						+ "AND brukerID = ? ORDER BY dato DESC");
+				PrepStatement.setString(1, ØvelsesNavn);
+				PrepStatement.setInt(2, brukerID);
+				ResultSet resultatSet = PrepStatement.executeQuery();
+
+				ResultSetMetaData Resultatmetadata = PrepStatement.getMetaData();
+				int numberOfColumns = Resultatmetadata.getColumnCount();
+
+				ArrayList<String[]> resultater = new ArrayList<>();
+				while( resultatSet.next()) {
+					String[] row = new String[numberOfColumns];
+					for( int iCol = 1; iCol <= numberOfColumns; iCol++ ){
+						row[iCol-1] = resultatSet.getObject( iCol ).toString();
+					}
+					resultater.add( row );
 				}
-				resultater.add( row );
-			}
-			for( String[] row: resultater ){
-				for( String s: row ){
-					System.out.print( " " + s );
+				for( String[] row: resultater ){
+					for( String s: row ){
+						System.out.print( " " + s );
+					}
+					System.out.println();
 				}
-				System.out.println();
+				break;
+
+			case 4: // Legg til mål
+				System.out.println("Velg en øvelse: ");
+				String navnPåØvelse = Scanner.nextLine();
+				System.out.println("Antall repetisjoner: ");
+				int antallRepetisjoner = Scanner.nextInt();
+				System.out.println("Vekt: ");
+				int målVekt = Scanner.nextInt();
+				addMål(brukerID, navnPåØvelse, sqlDate, antallRepetisjoner, målVekt);
+				break;
+
+			case 5: // Slett bruker
+				System.out.println("Bruker og tilhørende all data blir slettet. Vil du fortsette [1] Ja. [2] Nei?");
+				int Svar = Scanner.nextInt();
+				if (Svar == 1) {
+					PreparedStatement Statement = myConnection.prepareStatement("DELETE FROM BRUKER WHERE brukerID = ?");
+					Statement.setInt(1, brukerID);
+					Statement.execute();
+					
+					PreparedStatement Statement2 = myConnection.prepareStatement("ALTER TABLE BRUKER AUTO_INCREMENT = ?");
+					Statement2.setInt(1, brukerID);
+					Statement2.execute();
+				} 
+				break;
+
+			case 6: // Avslutt program
+				System.out.println("Hade bra!");
+				break;
+			default: 
+				System.out.println("Ikke et gyldig valg. Prøv igjen!");
+				break;
 			}
-			break;
 		}
+
+		Scanner.close();
+		myConnection.close();
 	}
+
 }
